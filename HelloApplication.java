@@ -2,85 +2,81 @@ package com.example.elasticcollision;
 
 import javafx.application.Application;
 import javafx.scene.Scene;
-import javafx.stage.Stage;
 import javafx.scene.control.Button;
 import javafx.scene.layout.Pane;
-import javafx.scene.paint.Color;
-import javafx.scene.shape.Rectangle;
+import javafx.stage.Stage;
 
-public class HelloApplication extends Application {
+public class IntersectingButtons extends Application {
+
     private Button button1;
     private Button button2;
-    private Rectangle intersectionButtons;
-    @Override
-    public void start(Stage stage) {
-        Pane pane = new Pane();
-        Scene scene = new Scene(pane, 500, 500);
 
-        button1 = new Button("Button 1");
-        button1.setMinSize(100,100);
-        button1.setLayoutX(200);
-        button1.setLayoutY(100);
-
-        button2 = new Button("Button 2");
-        button2.setMinSize(100,100);
-        button2.setLayoutX(200);
-        button2.setLayoutY(300);
-
-        intersectionButtons = new Rectangle();
-        intersectionButtons.setFill(Color.HOTPINK);
-        intersectionButtons.setVisible(false);
-
-        pane.getChildren().addAll(button1,button2,intersectionButtons);
-        ButtonCoords buttonCoords = new ButtonCoords();
-
-        button1.setOnMousePressed(mouseEvent -> {
-            buttonCoords.setX(mouseEvent.getSceneX() - button1.getLayoutX());
-            buttonCoords.setY(mouseEvent.getSceneY() - button1.getLayoutY());
-
-        });
-
-        button1.setOnMouseDragged(mouseEvent -> {
-            button1.setLayoutX(mouseEvent.getSceneX() - buttonCoords.getX());
-            button1.setLayoutY(mouseEvent.getSceneY() - buttonCoords.getY());
-            intersectionCheck();
-        });
-
-        button2.setOnMousePressed(mouseEvent -> {
-            buttonCoords.setX(mouseEvent.getSceneX() - button2.getLayoutX());
-            buttonCoords.setY(mouseEvent.getSceneY() - button2.getLayoutY());
-        });
-
-        button2.setOnMouseDragged(mouseEvent -> {
-            button2.setLayoutX(mouseEvent.getSceneX() - buttonCoords.getX());
-            button2.setLayoutY(mouseEvent.getSceneY() - buttonCoords.getY());
-            intersectionCheck();
-        });
-
-        stage.setTitle("Intersection");
-        stage.setScene(scene);
-        stage.show();
-    }
-    private void intersectionCheck() {
-        intersectionButtons.setVisible(button1.getBoundsInParent().intersects(button2.getBoundsInParent()));
-        if (intersectionButtons.isVisible()) {
-            double intersectWidth = Math.min(button1.getBoundsInParent().getMaxX(), button2.getBoundsInParent().getMaxX()) -
-                    Math.max(button1.getBoundsInParent().getMinX(), button2.getBoundsInParent().getMinX());
-
-            double intersectHeight = Math.min(button1.getBoundsInParent().getMaxY(), button2.getBoundsInParent().getMaxY()) -
-                    Math.max(button1.getBoundsInParent().getMinY(), button2.getBoundsInParent().getMinY());
-
-            intersectionButtons.setX(Math.max(button1.getBoundsInParent().getMinX(), button2.getBoundsInParent().getMinX()));
-            intersectionButtons.setY(Math.max(button1.getBoundsInParent().getMinY(), button2.getBoundsInParent().getMinY()));
-
-            intersectionButtons.setWidth(intersectWidth);
-            intersectionButtons.setHeight(intersectHeight);
-
-            double area = intersectWidth * intersectHeight;
-            System.out.println("Intersection area: " + area);
-        }
-    }
     public static void main(String[] args) {
-        launch();
+        launch(args);
+    }
+
+    @Override
+    public void start(Stage primaryStage) {
+        // Создаем панель для размещения кнопок
+        Pane root = new Pane();
+
+        // Создаем две кнопки
+        button1 = new Button("Кнопка 1");
+        button2 = new Button("Кнопка 2");
+
+        // Устанавливаем начальные позиции кнопок
+        button1.setLayoutX(50);
+        button1.setLayoutY(50);
+        button2.setLayoutX(100);
+        button2.setLayoutY(100);
+
+        // Добавляем обработчики событий для перемещения кнопок
+        button1.setOnMouseDragged(e -> {
+            button1.setLayoutX(e.getSceneX() - button1.getWidth() / 2);
+            button1.setLayoutY(e.getSceneY() - button1.getHeight() / 2);
+            calculateIntersection();
+        });
+
+        button2.setOnMouseDragged(e -> {
+            button2.setLayoutX(e.getSceneX() - button2.getWidth() / 2);
+            button2.setLayoutY(e.getSceneY() - button2.getHeight() / 2);
+            calculateIntersection();
+        });
+
+        // Добавляем кнопки на панель
+        root.getChildren().addAll(button1, button2);
+
+        // Создаем сцену и устанавливаем ее на стадию
+        Scene scene = new Scene(root, 400, 300);
+        primaryStage.setScene(scene);
+        primaryStage.setTitle("Пересекающиеся кнопки");
+        primaryStage.show();
+    }
+
+    // Метод для вычисления площади пересечения кнопок
+    private void calculateIntersection() {
+        // Получаем координаты и размеры кнопок
+        double x1 = button1.getLayoutX();
+        double y1 = button1.getLayoutY();
+        double width1 = button1.getWidth();
+        double height1 = button1.getHeight();
+
+        double x2 = button2.getLayoutX();
+        double y2 = button2.getLayoutY();
+        double width2 = button2.getWidth();
+        double height2 = button2.getHeight();
+
+        // Вычисляем пересечение
+        double intersectionWidth = Math.min(x1 + width1, x2 + width2) - Math.max(x1, x2);
+        double intersectionHeight = Math.min(y1 + height1, y2 + height2) - Math.max(y1, y2);
+
+        // Проверяем, пересекаются ли кнопки
+        if (intersectionWidth > 0 && intersectionHeight > 0) {
+            // Вычисляем площадь пересечения
+            double intersectionArea = intersectionWidth * intersectionHeight;
+            System.out.println("Площадь пересечения: " + intersectionArea);
+        } else {
+            System.out.println("Кнопки не пересекаются");
+        }
     }
 }
